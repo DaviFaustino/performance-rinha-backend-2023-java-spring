@@ -46,4 +46,9 @@ public class PessoaController {
                             .collectList()
                             .map(pessoaDtos -> ResponseEntity.status(HttpStatus.OK).body(pessoaDtos));
     }
+
+    @GetMapping(value = "/contagem-pessoas")
+    public Mono<ResponseEntity<Integer>> getContagemPessoas() {
+        return pessoaService.getPessoasCounting().map(contagem -> ResponseEntity.status(HttpStatus.OK).body(contagem));
+    }
 }
