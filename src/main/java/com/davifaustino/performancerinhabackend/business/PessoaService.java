@@ -75,4 +75,8 @@ public class PessoaService {
 
         return pessoaRepository.getPessoas(termo).map(pessoaEntity -> pessoaEntity.toPessoaDto());
     }
+
+    public Mono<Integer> getPessoasCounting() {
+        return pessoaRepository.getPessoasCounting();
+    }
 }
