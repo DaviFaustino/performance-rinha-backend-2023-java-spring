@@ -60,4 +60,11 @@ public class PessoaRepository {
                                                                 row.get("stack", String[].class)))
                             .all(); // Retorna Flux<Pessoa>
     }
+
+    public Mono<Integer> getPessoasCounting() {
+
+        return databaseClient.sql("SELECT COUNT(*) FROM tb_pessoas")
+                            .map((row, metadata) -> row.get(0, Integer.class))
+                            .one();
+    }
 }
