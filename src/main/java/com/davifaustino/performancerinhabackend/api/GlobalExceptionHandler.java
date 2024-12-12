@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.davifaustino.performancerinhabackend.business.BadRequestException;
+import com.davifaustino.performancerinhabackend.business.NotFoundException;
 import com.davifaustino.performancerinhabackend.business.UnprocessableException;
 
 import reactor.core.publisher.Mono;
@@ -28,6 +29,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public Mono<ResponseEntity<String>> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
         return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null));
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public Mono<ResponseEntity<String>> handleNotFoundException(NotFoundException e) {
+        return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
 
     @ExceptionHandler(DuplicateKeyException.class)
