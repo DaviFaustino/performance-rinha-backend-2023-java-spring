@@ -60,4 +60,11 @@ public class PessoaService {
             }
         }
     }
+
+    public Mono<PessoaDto> getOnePessoa(String id) {
+
+        return pessoaRepository.getOnePessoa(UUID.fromString(id))
+                                .switchIfEmpty(Mono.error(new NotFoundException()))
+                                .map(Pessoa::toPessoaDto);
+    }
 }
