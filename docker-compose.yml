@@ -1,0 +1,94 @@
+networks:
+    my-perf-rinha:
+        driver: bridge
+
+volumes:
+    db:
+
+services:
+    database:
+        image: postgres:16.4
+        hostname: db
+        container_name: my-perf-postgres-rinha
+        network_mode: host
+        environment:
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: pessoas_data
+        volumes:
+            - db:/var/data
+        deploy:
+            resources:
+                limits:
+                    cpus: '0.65'
+                    memory: '0.8GB'
+                    # cpus: '0.43'
+                    # memory: '0.45GB'
+                reservations:
+                    cpus: "0.65"
+                    memory: "0.8GB"
+        cpuset: "0"
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 5s
+            timeout: 5s
+            retries: 20
+            start_period: 10s
+
+    api1: &api
+        build: .
+        image: my-perf-rinha-app:1.0
+        container_name: api1-my-perf-rinha-app
+        network_mode: host
+        environment:
+            SERVER_PORT: 8080
+        depends_on:
+            database:
+                condition: service_healthy
+        deploy:
+            resources:
+                limits:
+                    cpus: '0.36'
+                    memory: '0.9GB'
+                    # cpus: '0.24'
+                    # memory: '0.76GB'
+                reservations:
+                    cpus: "0.36"
+                    memory: "0.9GB"
+        cpuset: "1"
+        healthcheck:
+            test: ["CMD", "curl", "http://localhost:8080/contagem-pessoas"]
+            interval: 5s
+            timeout: 5s
+            retries: 20
+
+    api2:
+        <<: *api
+        container_name: api2-my-perf-rinha-app
+        environment:
+            SERVER_PORT: 8081
+        healthcheck:
+            test: ["CMD", "curl", "http://localhost:8081/contagem-pessoas"]
+            interval: 5s
+            timeout: 5s
+            retries: 20
+
+    nginx:
+        image: nginx:stable-alpine
+        container_name: perf-nginx-rinha
+        network_mode: host
+        depends_on:
+            api1:
+                condition: service_healthy
+            api2:
+                condition: service_healthy
+        deploy:
+            resources:
+                limits:
+                    cpus: '0.13'
+                    memory: '0.4GB'
+                    # cpus: '0.09'
+                    # memory: '0.03GB'
+                reservations:
+                    cpus: "0.13"
+                    memory: "0.1GB"
+        cpuset: "0"
