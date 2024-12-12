@@ -1,5 +1,7 @@
 package com.davifaustino.performancerinhabackend.business;
 
+import java.util.UUID;
+
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.r2dbc.core.DatabaseClient.GenericExecuteSpec;
 import org.springframework.stereotype.Component;
@@ -33,5 +35,16 @@ public class PessoaRepository {
                                     .fetch()
                                     .rowsUpdated();
         }
+    }
+
+    public Mono<Pessoa> getOnePessoa(UUID id) {
+        return databaseClient.sql("SELECT * FROM tb_pessoas WHERE id = :id")
+                            .bind("id", id) // Bind do parâmetro :id
+                            .map((row, metadata) -> new Pessoa(row.get("id", UUID.class),
+                                                                row.get("apelido", String.class),
+                                                                row.get("nome", String.class),
+                                                                row.get("nascimento", String.class),
+                                                                row.get("stack", String[].class)))
+                            .one(); // Retorna Mono<Pessoa>
     }
 }
