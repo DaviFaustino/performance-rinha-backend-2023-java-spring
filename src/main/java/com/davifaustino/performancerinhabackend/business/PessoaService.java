@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.davifaustino.performancerinhabackend.api.PessoaDto;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -66,5 +67,12 @@ public class PessoaService {
         return pessoaRepository.getOnePessoa(UUID.fromString(id))
                                 .switchIfEmpty(Mono.error(new NotFoundException()))
                                 .map(Pessoa::toPessoaDto);
+    }
+
+    public Flux<PessoaDto> getPessoas(String termo) {
+        if (termo == null) return Flux.error(new BadRequestException());
+        if (termo.isBlank()) return Flux.error(new BadRequestException());
+
+        return pessoaRepository.getPessoas(termo).map(pessoaEntity -> pessoaEntity.toPessoaDto());
     }
 }
